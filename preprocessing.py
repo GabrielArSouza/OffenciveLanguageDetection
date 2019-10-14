@@ -1,4 +1,5 @@
 import csv, sys, re, json
+from random import sample
 
 FILENAME = "dataset/labeled_data.csv"
 
@@ -33,8 +34,39 @@ def get_hashtags (message):
     pattern = re.compile('#[0-9a-zA-Z]+')
     return pattern.findall(tmp)
 
+# Separate a dataset in a train set and test set
+def separate_dataset(dataset, train, test):
+    number_of_classes = len(dataset)
+    
+    # select the min size
+    min_size = sys.maxsize
+    for elem in dataset:
+        if (len(elem) < min_size):
+            min_size = len(elem)
+    
+    # create a selective dataset - select a random number
+    # of elem for either class with the same size
+    new_dataset = []
+    for elem in dataset:
+        new_dataset.append(sample(elem, min_size))
+    
+    train_size = int(train * min_size)
+    test_size = int(test * min_size)
+    
+    new_dataset_train = []
+    new_dataset_test = []
+
+    for elem in new_dataset:
+        print (len(elem))
+        new_dataset_train.append(elem[:train_size])
+        new_dataset_test.append(elem[train_size:])
+    
+    return new_dataset_train, new_dataset_test
+
 def read_csv_file ():
     
+    dataset = [[], [], []]
+
     # read csv file
     global FILENAME
     with open(FILENAME) as csvfile:
@@ -77,7 +109,41 @@ def read_csv_file ():
 
             data['clean_message'] = clean_message(data['message'])
     
-            print(data)
+            # divide messages
+            if (data['label'] == '0'):
+                dataset[0].append(data)
+            elif (data['label'] == '1'):
+                dataset[1].append(data)
+            elif (data['label'] == '2'):
+                dataset[2].append(data)
+
+            #print(data)
+        print (len(dataset[0]), len(dataset[1]), len(dataset[2]))
+        
+        tmp = [[], []]
+        tmp[0] = dataset[1] # offensive language
+        tmp[1] = dataset[2] # neither
+        new_dataset_train, new_dataset_test = separate_dataset(tmp, 0.6, 0.4)
+
+        f = open("dataset/train/positive.txt","w+")
+        for elem in new_dataset_train[0]:
+            f.write(str(elem) + '\n') 
+        f.close()
+
+        f = open("dataset/train/negative.txt","w+")
+        for elem in new_dataset_train[1]:
+            f.write(str(elem) + '\n') 
+        f.close()
+
+        f = open("dataset/test/positive.txt","w+")
+        for elem in new_dataset_test[0]:
+            f.write(str(elem) + '\n') 
+        f.close()
+
+        f = open("dataset/test/negative.txt","w+")
+        for elem in new_dataset_test[1]:
+            f.write(str(elem) + '\n') 
+        f.close()
 
 
 read_csv_file()
