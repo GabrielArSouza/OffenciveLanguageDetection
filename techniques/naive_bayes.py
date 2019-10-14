@@ -98,7 +98,46 @@ def classifier_message (classifier_table, total_normal_words, total_offensive_wo
 
 def run ():
     classifier_table, total_normal_words, total_offensive_words = train_naive_bayes()
-    msg = "ya but you cant because its a real account dumb bitch I go to wams fucking bitch"
-    print (classifier_message(classifier_table, total_normal_words, total_offensive_words, 0.5, 1, msg))
+
+    tp = 0
+    tn = 0
+    fp = 0
+    fn = 0
+
+    p = 1
+    m = 0.5
+
+    with open("../dataset/test/positive.txt", 'r') as file_:
+        for line in file_:
+            msg = json.loads(line)['clean_message']
+            c = classifier_message(classifier_table, total_normal_words, total_offensive_words, p, m, msg)
+            if (c == 1): 
+                tp = tp + 1
+            else: 
+                fn = fn + 1
+
+    with open("../dataset/test/negative.txt", 'r') as file_:
+        for line in file_:
+            msg = json.loads(line)['clean_message']
+            c = classifier_message(classifier_table, total_normal_words, total_offensive_words, p, m, msg)
+            if (c == 2): 
+                tn = tn + 1
+            else: 
+                fp = fp + 1
+
+    accuracy = (tp+tn)/(tp+fp+tn+fn)
+    precision = tp/(tp+fp)
+    recall = tp/(tp+fn)
+    f1_score = 2*(recall*precision)/(recall+precision)
+
+
+    print ("tp = " + str(tp))
+    print ("tn = " + str(tn))
+    print ("fp = " + str(fp))
+    print ("fn = " + str(fn))
+    print ("accuracy = " + str(accuracy))
+    print ("precision = " + str(precision))
+    print ("recall = " + str(recall))
+    print ("F1-score = " + str(f1_score))
 
 run()
