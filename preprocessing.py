@@ -127,22 +127,22 @@ def read_csv_file ():
 
         f = open("dataset/train/positive.txt","w+")
         for elem in new_dataset_train[0]:
-            f.write(str(elem) + '\n') 
+            f.write(json.dumps(elem) + '\n') 
         f.close()
 
         f = open("dataset/train/negative.txt","w+")
         for elem in new_dataset_train[1]:
-            f.write(str(elem) + '\n') 
+            f.write(json.dumps(elem) + '\n') 
         f.close()
 
         f = open("dataset/test/positive.txt","w+")
         for elem in new_dataset_test[0]:
-            f.write(str(elem) + '\n') 
+            f.write(json.dumps(elem) + '\n') 
         f.close()
 
         f = open("dataset/test/negative.txt","w+")
         for elem in new_dataset_test[1]:
-            f.write(str(elem) + '\n') 
+            f.write(json.dumps(elem) + '\n') 
         f.close()
 
 
