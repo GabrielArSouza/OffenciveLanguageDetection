@@ -1,2 +1,2 @@
 # OffensiveLanguageDetection
-A IA for offencive language detection in twitters
+A IA for offensive language detection in twitters
