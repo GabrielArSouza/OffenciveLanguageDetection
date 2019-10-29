@@ -1,4 +1,6 @@
 import json, math
+import load_dataset as dataset
+import results
 
 # repository from train and test dataset
 train = "../dataset/train/"
@@ -8,27 +10,6 @@ stop_words_repo = "../files/stop_words.in"
 positive_messages = []
 negative_messages = []
 stop_words = []
-
-def read_stop_words ():
-    global stop_words
-    with open(stop_words_repo, 'r') as fp:
-        for line in fp:
-            stop_words.append(line.rstrip('\n'))
-
-def load_messages ():
-    positive_repo = train + "positive.txt"
-    
-    global positive_messages
-    with open(positive_repo, 'r') as fp:
-        for line in fp:
-            positive_messages.append(json.loads(line)['clean_message'])
-    
-    negative_repo = train + "negative.txt"
-    
-    global negative_messages
-    with open(negative_repo, 'r') as fp:
-        for line in fp:
-            negative_messages.append(json.loads(line)['clean_message'])
 
 def save_words ():
     classifier_table = {}
@@ -65,8 +46,9 @@ def save_words ():
     return classifier_table, total_normal_words, total_offensive_words
 
 def train_naive_bayes ():
-    read_stop_words()
-    load_messages()
+    global positive_messages, negative_messages, stop_words
+    positive_messages, negative_messages, stop_words = dataset.load()
+    
     return save_words()
 
 # return 1 if offensive, 2 otherwise
@@ -125,19 +107,6 @@ def run ():
             else: 
                 fp = fp + 1
 
-    accuracy = (tp+tn)/(tp+fp+tn+fn)
-    precision = tp/(tp+fp)
-    recall = tp/(tp+fn)
-    f1_score = 2*(recall*precision)/(recall+precision)
-
-
-    print ("tp = " + str(tp))
-    print ("tn = " + str(tn))
-    print ("fp = " + str(fp))
-    print ("fn = " + str(fn))
-    print ("accuracy = " + str(accuracy))
-    print ("precision = " + str(precision))
-    print ("recall = " + str(recall))
-    print ("F1-score = " + str(f1_score))
+    results.print_results(tp,tn,fp,fn)
 
 run()
