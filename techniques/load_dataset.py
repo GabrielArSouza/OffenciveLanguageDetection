@@ -2,7 +2,6 @@ import json
 
 # repository from train and test dataset
 train = "../dataset/train/"
-test  = "../dataset/test/"
 stop_words_repo = "../files/stop_words.in"
 
 def read_stop_words ():
