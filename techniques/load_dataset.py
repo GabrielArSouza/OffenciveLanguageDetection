@@ -19,7 +19,6 @@ def load_messages ():
     with open(positive_repo, 'r') as fp:
         for line in fp:
             positive_messages.append(json.loads(line)['clean_message'])
-    
     negative_repo = train + "negative.txt"
     
     # read negative messages for offensive
@@ -27,7 +26,7 @@ def load_messages ():
     with open(negative_repo, 'r') as fp:
         for line in fp:
             negative_messages.append(json.loads(line)['clean_message'])
-    
+            
     return positive_messages, negative_messages
 
 def load ():
