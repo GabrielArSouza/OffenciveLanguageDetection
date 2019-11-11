@@ -74,8 +74,8 @@ def score_list_words (list_words):
             neither_score += (bag_of_words[word]['neither']/total_negative_words)
         else: continue
 
-    offensive_score = offensive_score / len(list_words)
-    neither_score = neither_score / len(list_words)
+    # offensive_score = offensive_score / len(list_words)
+    # neither_score = neither_score / len(list_words)
 
     return offensive_score, neither_score
 
@@ -122,10 +122,16 @@ def train (dataset, classes, max_epochs=500, alpha=0.0001):
     while (epochs < max_epochs):
         value = w_pos * train_positive_feature + w_neg * train_negative_feature
         production = value * classes_train_vector
-        print("epochs:", epochs)
+        
+        # print ("epochs:", epochs)
+        # print ("value:\n", value)
+        # print ("production:\n", production)
+        # print ("w_pos:\n", w_pos)
+        # print ("w_neg\n", w_neg)
+        # print ()
 
         count = 0
-        lambda_ = 1.0 / epochs  
+        lambda_ = 1 / epochs  
         # adjust weights
         for val in production:
             if (val >= 1):
@@ -138,7 +144,7 @@ def train (dataset, classes, max_epochs=500, alpha=0.0001):
                 w_neg = w_neg + alpha * (train_negative_feature[count] * classes_train_vector[count] - 2 * lambda_ * w_neg)
             count += 1
         epochs += 1
-
+        
     return w_pos, w_neg
 
 def compute_metrics(real, predict):
@@ -165,8 +171,8 @@ def test (w_pos, w_neg, size_dataset_train):
     positive, negative = preprocess("TEST")
     positive, negative = create_dataset(positive, negative)
 
-    print ("w_pos:", w_pos)
-    print ("w_neg:", w_neg)
+    # print ("w_pos:", w_pos)
+    # print ("w_neg:", w_neg)
 
     # create vector of results and dataset
     dataset = []
@@ -213,7 +219,8 @@ def test (w_pos, w_neg, size_dataset_train):
         else:
             predictions.append(-1)
 
-    compute_metrics(classes_test_vector, predictions)
+    print(y_pred.tolist() )
+    #compute_metrics(classes_test_vector, predictions)
 
 def run ():
     positive, negative = preprocess()       # get dataset
@@ -233,30 +240,17 @@ def run ():
         classes.append(1)
    
     dataset, classes = shuffle(dataset, classes)
-    w_pos, w_neg = train(dataset, classes, max_epochs=100)
-    test(w_pos, w_neg, len(dataset))
+    
+    max_ep = 500
+    while (max_ep < 1000):
+        w_pos, w_neg = train(dataset, classes, max_epochs=max_ep)
+        test(w_pos, w_neg, len(dataset))
+        print ()
+        max_ep += 100
 
 
 if __name__ == '__main__':
     
-    positive, negative = preprocess()       # get dataset
-    create_bag_of_words(positive, negative) # create bag of words
-    positive, negative = create_dataset(positive, negative) # convert all text in a numeric value
-
-    # create vector of results and dataset
-    dataset = []
-    classes = []
-
-    for val in positive:
-        dataset.append(val)
-        classes.append(-1)
-    
-    for val in negative:
-        dataset.append(val)
-        classes.append(1)
-   
-    dataset, classes = shuffle(dataset, classes)
-    w_pos, w_neg = train(dataset, classes, max_epochs=500)
-    test(w_pos, w_neg, len(dataset))
+    run()
 
     
