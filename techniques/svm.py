@@ -74,8 +74,8 @@ def score_list_words (list_words):
             neither_score += (bag_of_words[word]['neither']/total_negative_words)
         else: continue
 
-    # offensive_score = offensive_score / len(list_words)
-    # neither_score = neither_score / len(list_words)
+    offensive_score = (offensive_score / len(list_words))*1000
+    neither_score = (neither_score / len(list_words))*1000
 
     return offensive_score, neither_score
 
@@ -115,15 +115,15 @@ def train (dataset, classes, max_epochs=500, alpha=0.0001):
     train_positive_feature = train_positive_feature.reshape(dataset_size, 1)
     train_negative_feature = train_negative_feature.reshape(dataset_size, 1)
 
-    w_pos = np.zeros((dataset_size, 1))
-    w_neg = np.zeros((dataset_size, 1))
+    w_pos = np.full((dataset_size, 1), 1)
+    w_neg = np.full((dataset_size, 1), 1)
 
     epochs = 1 
     while (epochs < max_epochs):
         value = w_pos * train_positive_feature + w_neg * train_negative_feature
         production = value * classes_train_vector
         
-        # print ("epochs:", epochs)
+        print ("epochs:", epochs)
         # print ("value:\n", value)
         # print ("production:\n", production)
         # print ("w_pos:\n", w_pos)
@@ -171,8 +171,8 @@ def test (w_pos, w_neg, size_dataset_train):
     positive, negative = preprocess("TEST")
     positive, negative = create_dataset(positive, negative)
 
-    # print ("w_pos:", w_pos)
-    # print ("w_neg:", w_neg)
+    print ("w_pos:", w_pos)
+    print ("w_neg:", w_neg)
 
     # create vector of results and dataset
     dataset = []
@@ -219,8 +219,7 @@ def test (w_pos, w_neg, size_dataset_train):
         else:
             predictions.append(-1)
 
-    print(y_pred.tolist() )
-    #compute_metrics(classes_test_vector, predictions)
+    compute_metrics(classes_test_vector, predictions)
 
 def run ():
     positive, negative = preprocess()       # get dataset
@@ -241,12 +240,9 @@ def run ():
    
     dataset, classes = shuffle(dataset, classes)
     
-    max_ep = 500
-    while (max_ep < 1000):
-        w_pos, w_neg = train(dataset, classes, max_epochs=max_ep)
-        test(w_pos, w_neg, len(dataset))
-        print ()
-        max_ep += 100
+    w_pos, w_neg = train(dataset, classes, max_epochs=1000)
+    test(w_pos, w_neg, len(dataset))
+        
 
 
 if __name__ == '__main__':
