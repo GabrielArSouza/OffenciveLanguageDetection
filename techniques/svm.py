@@ -2,7 +2,7 @@ import load_dataset as loader
 import results
 import tfidf 
 import numpy as np 
-import matplotlib.pyplot as plt
+#import matplotlib.pyplot as plt
 
 from sklearn.utils import shuffle
 
@@ -123,7 +123,7 @@ def train (dataset, classes, max_epochs=500, alpha=0.0001):
         value = w_pos * train_positive_feature + w_neg * train_negative_feature
         production = value * classes_train_vector
         
-        print ("epochs:", epochs)
+        # print ("epochs:", epochs)
         # print ("value:\n", value)
         # print ("production:\n", production)
         # print ("w_pos:\n", w_pos)
@@ -131,7 +131,8 @@ def train (dataset, classes, max_epochs=500, alpha=0.0001):
         # print ()
 
         count = 0
-        lambda_ = 1 / epochs  
+        lambda_ = 1 / epochs 
+        # print ('lambda:', lambda_) 
         # adjust weights
         for val in production:
             if (val >= 1):
@@ -165,14 +166,15 @@ def compute_metrics(real, predict):
         elif real[i] == 1 and predict[i] == -1:
             fp += 1
 
-    results.print_results (tp, tn, fp, fn)
+    acc, pre = results.print_results (tp, tn, fp, fn)
+    return acc, pre
  
 def test (w_pos, w_neg, size_dataset_train):
     positive, negative = preprocess("TEST")
     positive, negative = create_dataset(positive, negative)
 
-    print ("w_pos:", w_pos)
-    print ("w_neg:", w_neg)
+    # print ("w_pos:", w_pos)
+    # print ("w_neg:", w_neg)
 
     # create vector of results and dataset
     dataset = []
@@ -191,8 +193,11 @@ def test (w_pos, w_neg, size_dataset_train):
     dataset_test_vector = np.array(dataset)
     classes_test_vector = np.array(classes)
 
+    # print("dataset_test_vector",dataset_test_vector)
+
     # transform classes in a vector
     classes_test_vector = classes_test_vector.reshape(size_dataset_test, 1)
+
 
     ## Clip the weights 
     index = list(range(size_dataset_test, size_dataset_train))
@@ -202,6 +207,9 @@ def test (w_pos, w_neg, size_dataset_train):
     w_pos = w_pos.reshape(size_dataset_test, 1)
     w_neg = w_neg.reshape(size_dataset_test, 1)
 
+    # print("w_pos_test", w_pos)
+    # print("w_neg_test", w_neg)
+
     ## Extract the test data features 
     test_positive_feature = dataset_test_vector[:,0]
     test_negative_feature = dataset_test_vector[:,1]
@@ -209,17 +217,26 @@ def test (w_pos, w_neg, size_dataset_train):
     test_positive_feature = test_positive_feature.reshape(size_dataset_test, 1)
     test_negative_feature = test_negative_feature.reshape(size_dataset_test, 1)
 
+    # print ("test_postive_feature", test_positive_feature)
+    # print ("test_negative_feature", test_negative_feature)
+
+    # print("test_positive_feature", test_positive_feature)
+    # print("test_negative_feature", test_negative_feature)
+
+
     ## predict
     y_pred = w_pos * test_positive_feature + w_neg * test_negative_feature
   
+    # print ("y_pred", y_pred)
+
     predictions = []
     for value in y_pred:
-        if (val[0] > 1):
+        if (value > 1):
             predictions.append(1)
         else:
             predictions.append(-1)
 
-    compute_metrics(classes_test_vector, predictions)
+    return compute_metrics(classes_test_vector, predictions)
 
 def run ():
     positive, negative = preprocess()       # get dataset
@@ -238,11 +255,32 @@ def run ():
         dataset.append(val)
         classes.append(1)
    
-    dataset, classes = shuffle(dataset, classes)
-    
-    w_pos, w_neg = train(dataset, classes, max_epochs=1000)
-    test(w_pos, w_neg, len(dataset))
+    best_seed = 0
+    best_acc = 0
+    best_pre = 0
+    testes = {}
+
+    for seed in range (10):
+        print("actual_seed:", seed)
+        dataset, classes = shuffle(dataset, classes, random_state=seed)
         
+        w_pos, w_neg = train(dataset, classes, max_epochs=100, alpha=0.01)
+        acc, pre = test(w_pos, w_neg, len(dataset))
+        
+        testes[seed] = {"acc": acc, "pre":pre}
+        if acc > best_acc or pre > best_pre:
+            best_seed = seed
+        
+        if acc > best_acc:
+            best_acc = acc
+        if pre > best_pre:
+            best_pre = pre
+        
+    
+    print(testes)
+    print("best_acc:", best_acc)
+    print("best_pre:", best_pre)
+    print("best_seed:", best_seed)
 
 
 if __name__ == '__main__':

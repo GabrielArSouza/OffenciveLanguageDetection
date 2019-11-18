@@ -24,3 +24,5 @@ def print_results (tp, tn, fp, fn):
     print ("precision = " + str(precision))
     print ("recall = " + str(recall))
     print ("F1-score = " + str(f1_score))
+
+    return accuracy, precision
