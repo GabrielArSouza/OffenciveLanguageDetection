@@ -1,5 +1,5 @@
 import csv, sys, re, json
-from random import sample
+import random
 
 FILENAME = "dataset/labeled_data.csv"
 
@@ -46,9 +46,10 @@ def separate_dataset(dataset, train, test):
     
     # create a selective dataset - select a random number
     # of elem for either class with the same size
+    random.seed(1)
     new_dataset = []
     for elem in dataset:
-        new_dataset.append(sample(elem, min_size))
+        new_dataset.append(random.sample(elem, min_size))
     
     train_size = int(train * min_size)
     test_size = int(test * min_size)
