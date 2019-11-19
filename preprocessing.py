@@ -4,13 +4,13 @@ from random import sample
 FILENAME = "dataset/labeled_data.csv"
 
 def clean_message (message):
-    tmp = re.sub(r'RT @[a-zA-Z0-9_]*','', message) # remove retweets
-    tmp = re.sub(r'@[a-zA-Z0-9_]*','', tmp)        # remove users
-    tmp = re.sub(r'#[0-9a-zA-Z]+','', tmp)         # remove hashtags
-    tmp = re.sub(r'&#[0-9]*;', '', tmp)            # remove emojis
-    tmp = re.sub(r'(https?:\/\/(?:www\.|(?!www))[a-zA-Z0-9][a-zA-Z0-9-]+[a-zA-Z0-9]\.[^\s]{2,}|www\.[a-zA-Z0-9][a-zA-Z0-9-]+[a-zA-Z0-9]\.[^\s]{2,}|https?:\/\/(?:www\.|(?!www))[a-zA-Z0-9]+\.[^\s]{2,}|www\.[a-zA-Z0-9]+\.[^\s]{2,})', '', tmp)
-    tmp = re.sub(r'[^\w\s]','', tmp)               # remove punctuation
-    return tmp
+    tmp = re.sub(r'RT @[a-zA-Z0-9_]*','<retweet>', message) # remove retweets
+    tmp = re.sub(r'@[a-zA-Z0-9_]*',' <user>', tmp)            # remove users
+    tmp = re.sub(r'&#[0-9]*;', ' <emoji>', tmp)               # remove emojis
+    tmp = re.sub(r'#[0-9a-zA-Z]+',' <hastag>', tmp)          # remove hashtags
+    tmp = re.sub(r'(https?:\/\/(?:www\.|(?!www))[a-zA-Z0-9][a-zA-Z0-9-]+[a-zA-Z0-9]\.[^\s]{2,}|www\.[a-zA-Z0-9][a-zA-Z0-9-]+[a-zA-Z0-9]\.[^\s]{2,}|https?:\/\/(?:www\.|(?!www))[a-zA-Z0-9]+\.[^\s]{2,}|www\.[a-zA-Z0-9]+\.[^\s]{2,})', '<url>', tmp)
+    tmp = re.sub(r'[^\w\s]',' ', tmp)                         # remove punctuation
+    return tmp.lower() # lower case
 
 def get_urls (message):
     pattern = re.compile('(https?:\/\/(?:www\.|(?!www))[a-zA-Z0-9][a-zA-Z0-9-]+[a-zA-Z0-9]\.[^\s]{2,}|www\.[a-zA-Z0-9][a-zA-Z0-9-]+[a-zA-Z0-9]\.[^\s]{2,}|https?:\/\/(?:www\.|(?!www))[a-zA-Z0-9]+\.[^\s]{2,}|www\.[a-zA-Z0-9]+\.[^\s]{2,})')
@@ -144,6 +144,5 @@ def read_csv_file ():
         for elem in new_dataset_test[1]:
             f.write(json.dumps(elem) + '\n') 
         f.close()
-
 
 read_csv_file()
