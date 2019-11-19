@@ -260,7 +260,7 @@ def run ():
     best_pre = 0
     testes = {}
 
-    for seed in range (10):
+    for seed in range (11):
         print("actual_seed:", seed)
         dataset, classes = shuffle(dataset, classes, random_state=seed)
         
